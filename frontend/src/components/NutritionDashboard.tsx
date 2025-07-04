@@ -80,7 +80,7 @@ export default function NutritionDashboard({ selectedDate }: NutritionDashboardP
               <CircularProgressbar
                 value={Math.min((nutrition.total_calories / DAILY_GOALS.calories) * 100, 100)}
                 styles={buildStyles({
-                  pathColor: nutrition.total_calories > DAILY_GOALS.calories ? '#ef4444' : '#10b981',
+                  pathColor: nutrition.total_calories > DAILY_GOALS.calories ? '#ef4444' : '#3b82f6',
                   trailColor: '#f3f4f6',
                   strokeLinecap: 'round',
                   pathTransitionDuration: 0.5,

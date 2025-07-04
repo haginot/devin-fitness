@@ -146,7 +146,7 @@ export default function FoodLogger({ selectedDate }: FoodLoggerProps) {
                     key={food.id}
                     className={`p-3 border rounded-lg cursor-pointer transition-colors ${
                       selectedFood?.id === food.id
-                        ? 'border-green-500 bg-green-50'
+                        ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                     onClick={() => setSelectedFood(food)}
@@ -171,7 +171,7 @@ export default function FoodLogger({ selectedDate }: FoodLoggerProps) {
           </CardHeader>
           <CardContent className="space-y-4">
             {selectedFood && (
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <div className="font-medium">{selectedFood.name}</div>
                 <div className="text-sm text-gray-600">
                   {Math.round(selectedFood.calories_per_100g)} cal, {selectedFood.protein_per_100g.toFixed(1)}g protein per 100g

@@ -15,7 +15,7 @@ function App() {
         <div className="max-w-md mx-auto px-4 sm:max-w-7xl sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4 sm:py-6">
             <div className="flex items-center">
-              <Utensils className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 mr-2 sm:mr-3" />
+              <Utensils className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mr-2 sm:mr-3" />
               <h1 className="text-lg sm:text-2xl font-bold text-gray-900">MyFitnessPal</h1>
             </div>
             <div className="flex items-center space-x-2">
@@ -24,7 +24,7 @@ function App() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="px-2 py-1 sm:px-3 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="px-2 py-1 sm:px-3 sm:py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
