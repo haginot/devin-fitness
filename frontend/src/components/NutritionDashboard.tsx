@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Progress } from './ui/progress'
-import { Badge } from './ui/badge'
-import { Flame, Zap, Wheat, Droplets } from 'lucide-react'
+import { Card, CardContent } from './ui/card'
+import { Zap, Edit, Utensils } from 'lucide-react'
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
+import 'react-circular-progressbar/dist/styles.css'
 import { apiService } from '../services/api'
 import { DailyNutrition } from '../types'
 
@@ -57,161 +57,174 @@ export default function NutritionDashboard({ selectedDate }: NutritionDashboardP
     return <div className="text-center py-8">No nutrition data available</div>
   }
 
-  const caloriesProgress = (nutrition.total_calories / DAILY_GOALS.calories) * 100
   const proteinProgress = (nutrition.total_protein / DAILY_GOALS.protein) * 100
   const carbsProgress = (nutrition.total_carbs / DAILY_GOALS.carbs) * 100
   const fatProgress = (nutrition.total_fat / DAILY_GOALS.fat) * 100
-  const fiberProgress = (nutrition.total_fiber / DAILY_GOALS.fiber) * 100
+  const remainingCalories = Math.max(0, DAILY_GOALS.calories - nutrition.total_calories)
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Calories</CardTitle>
-            <Flame className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{Math.round(nutrition.total_calories)}</div>
-            <p className="text-xs text-muted-foreground">
-              of {DAILY_GOALS.calories} goal
-            </p>
-            <Progress value={Math.min(caloriesProgress, 100)} className="mt-2" />
-            <div className="text-xs text-muted-foreground mt-1">
-              {Math.round(caloriesProgress)}% complete
+    <div className="space-y-6 pb-20">
+      <Card className="shadow-lg border-0 bg-white">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Calories</h2>
+            <Edit className="h-5 w-5 text-blue-600" />
+          </div>
+          
+          <div className="text-sm text-gray-600 mb-4">
+            Remaining = Goal - Food + Exercise
+          </div>
+
+          <div className="flex items-center justify-center mb-6">
+            <div className="relative w-48 h-48">
+              <CircularProgressbar
+                value={Math.min((nutrition.total_calories / DAILY_GOALS.calories) * 100, 100)}
+                styles={buildStyles({
+                  pathColor: nutrition.total_calories > DAILY_GOALS.calories ? '#ef4444' : '#10b981',
+                  trailColor: '#f3f4f6',
+                  strokeLinecap: 'round',
+                  pathTransitionDuration: 0.5,
+                })}
+                strokeWidth={8}
+              />
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <div className="text-4xl font-bold text-gray-900">
+                  {Math.round(remainingCalories).toLocaleString()}
+                </div>
+                <div className="text-sm text-gray-600">Remaining</div>
+              </div>
             </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-1 mb-1">
+                <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                <span className="text-sm text-gray-600">Base Goal</span>
+              </div>
+              <div className="text-lg font-semibold">{DAILY_GOALS.calories.toLocaleString()}</div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-1 mb-1">
+                <Utensils className="w-3 h-3 text-blue-600" />
+                <span className="text-sm text-gray-600">Food</span>
+              </div>
+              <div className="text-lg font-semibold">{Math.round(nutrition.total_calories)}</div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-1 mb-1">
+                <Zap className="w-3 h-3 text-gray-400" />
+                <span className="text-sm text-gray-600">Exercise</span>
+              </div>
+              <div className="text-lg font-semibold">0</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-lg border-0 bg-white">
+        <CardContent className="p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Macros</h2>
+          
+          <div className="grid grid-cols-3 gap-6">
+            <div className="flex flex-col items-center">
+              <div className="relative w-20 h-20 mb-3">
+                <CircularProgressbar
+                  value={Math.min(carbsProgress, 100)}
+                  text={`${Math.round(nutrition.total_carbs)}`}
+                  styles={buildStyles({
+                    pathColor: '#14b8a6',
+                    textColor: '#14b8a6',
+                    trailColor: '#f3f4f6',
+                    strokeLinecap: 'round',
+                    textSize: '24px',
+                    pathTransitionDuration: 0.5,
+                  })}
+                  strokeWidth={12}
+                />
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">
+                  /{DAILY_GOALS.carbs}g
+                </div>
+              </div>
+              <div className="text-sm font-medium text-teal-600 mb-1">Carbohydrates</div>
+              <div className="text-xs text-gray-500">
+                {Math.max(0, DAILY_GOALS.carbs - nutrition.total_carbs).toFixed(0)}g left
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="relative w-20 h-20 mb-3">
+                <CircularProgressbar
+                  value={Math.min(fatProgress, 100)}
+                  text={`${Math.round(nutrition.total_fat)}`}
+                  styles={buildStyles({
+                    pathColor: '#8b5cf6',
+                    textColor: '#8b5cf6',
+                    trailColor: '#f3f4f6',
+                    strokeLinecap: 'round',
+                    textSize: '24px',
+                    pathTransitionDuration: 0.5,
+                  })}
+                  strokeWidth={12}
+                />
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">
+                  /{DAILY_GOALS.fat}g
+                </div>
+              </div>
+              <div className="text-sm font-medium text-purple-600 mb-1">Fat</div>
+              <div className="text-xs text-gray-500">
+                {Math.max(0, DAILY_GOALS.fat - nutrition.total_fat).toFixed(0)}g left
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center">
+              <div className="relative w-20 h-20 mb-3">
+                <CircularProgressbar
+                  value={Math.min(proteinProgress, 100)}
+                  text={`${Math.round(nutrition.total_protein)}`}
+                  styles={buildStyles({
+                    pathColor: '#f59e0b',
+                    textColor: '#f59e0b',
+                    trailColor: '#f3f4f6',
+                    strokeLinecap: 'round',
+                    textSize: '24px',
+                    pathTransitionDuration: 0.5,
+                  })}
+                  strokeWidth={12}
+                />
+                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 text-xs text-gray-500">
+                  /{DAILY_GOALS.protein}g
+                </div>
+              </div>
+              <div className="text-sm font-medium text-amber-600 mb-1">Protein</div>
+              <div className="text-xs text-gray-500">
+                {Math.max(0, DAILY_GOALS.protein - nutrition.total_protein).toFixed(0)}g left
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="shadow-lg border-0 bg-white">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-gray-900">Steps</h3>
+              <div className="text-2xl">👟</div>
+            </div>
+            <div className="text-2xl font-bold mb-1">0</div>
+            <div className="text-sm text-gray-500">Goal: 10,000 steps</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Protein</CardTitle>
-            <Zap className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{nutrition.total_protein.toFixed(1)}g</div>
-            <p className="text-xs text-muted-foreground">
-              of {DAILY_GOALS.protein}g goal
-            </p>
-            <Progress value={Math.min(proteinProgress, 100)} className="mt-2" />
-            <div className="text-xs text-muted-foreground mt-1">
-              {Math.round(proteinProgress)}% complete
+        <Card className="shadow-lg border-0 bg-white">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold text-gray-900">Exercise</h3>
+              <div className="text-xl">+</div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Carbs</CardTitle>
-            <Wheat className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{nutrition.total_carbs.toFixed(1)}g</div>
-            <p className="text-xs text-muted-foreground">
-              of {DAILY_GOALS.carbs}g goal
-            </p>
-            <Progress value={Math.min(carbsProgress, 100)} className="mt-2" />
-            <div className="text-xs text-muted-foreground mt-1">
-              {Math.round(carbsProgress)}% complete
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fat</CardTitle>
-            <Droplets className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{nutrition.total_fat.toFixed(1)}g</div>
-            <p className="text-xs text-muted-foreground">
-              of {DAILY_GOALS.fat}g goal
-            </p>
-            <Progress value={Math.min(fatProgress, 100)} className="mt-2" />
-            <div className="text-xs text-muted-foreground mt-1">
-              {Math.round(fatProgress)}% complete
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Macro Distribution</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="text-sm">Protein</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{nutrition.protein_percentage.toFixed(1)}%</Badge>
-                  <span className="text-sm text-muted-foreground">
-                    {nutrition.total_protein.toFixed(1)}g
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span className="text-sm">Carbohydrates</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{nutrition.carbs_percentage.toFixed(1)}%</Badge>
-                  <span className="text-sm text-muted-foreground">
-                    {nutrition.total_carbs.toFixed(1)}g
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span className="text-sm">Fat</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{nutrition.fat_percentage.toFixed(1)}%</Badge>
-                  <span className="text-sm text-muted-foreground">
-                    {nutrition.total_fat.toFixed(1)}g
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Additional Nutrients</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Fiber</span>
-                <div className="flex items-center gap-2">
-                  <Progress value={Math.min(fiberProgress, 100)} className="w-20" />
-                  <span className="text-sm text-muted-foreground">
-                    {nutrition.total_fiber.toFixed(1)}g / {DAILY_GOALS.fiber}g
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Calorie Balance</span>
-                <div className="text-sm">
-                  {nutrition.total_calories < DAILY_GOALS.calories ? (
-                    <Badge variant="secondary" className="text-green-700 bg-green-100">
-                      -{Math.round(DAILY_GOALS.calories - nutrition.total_calories)} remaining
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="text-red-700 bg-red-100">
-                      +{Math.round(nutrition.total_calories - DAILY_GOALS.calories)} over
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </div>
+            <div className="text-lg font-bold mb-1">0 kJ</div>
+            <div className="text-sm text-gray-500">0:00 hr</div>
           </CardContent>
         </Card>
       </div>
